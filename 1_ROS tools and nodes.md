@@ -42,4 +42,50 @@
 
 ### 1.2.2 编写一个最小ROS发布者
 
-  
+  在minimal_nodes下的src中,创建文件minimal_publisher.cpp,并添加以下代码.详细代码及详解参见代码文件.
+
+
+  命令roscd std_msgs, 可快速找到消息类型std_msgs的定义.
+
+  命令rosmsg show ...,可显示任意消息类型的详情.
+
+  while(ros::ok()):进入无限循环,直到检测到ROS系统被终止才会自行结束.而ROS系统的终止由函数ros::ok()实现.该方法可便于仅仅停止ROS系统(如通过kill roscore)即可关闭一系列节点.
+
+### 1.2.3 编译ROS节点
+
+  运行catkin_make可编译ROS节点.该命令必须在特定路径下执行,即ROS工作空间,如~/ros_ws.其将会编译该工作空间的所有功能包.
+
+  构建一个catkin功能包后,其可执行文件位于/devel/lib下.
+
+  编译前,必须通知catkin_make存在新的源代码,为此应编辑CMakeLists.txt,该文件在使用catkin_create_pkg创建功能包时自动生成.
+
+  只需保证已声明功能包依赖项,通知编译器来编译新源代码,将编译的代码与需要的库链接.
+
+  catkin_package_pkg已经填充以下片段:
+
+  find_package(catkin REQUIRED COMPONENTS
+    roscpp
+    std_msgs
+  )
+
+  include_directories(
+    ${catkin_INCLUDE_DIRS}
+  )
+
+  需添加以下行:
+
+  add_executable(minimal_publisher src/minimal_publisher.cpp)
+
+  target_link_libraries(minimal_publisher ${catkin_LIBRARIES})
+
+  以上两行通知该编译器新的源代码以及链接的库.
+
+  add_executable中第一个参数是所创建的可执行文件的名称.其第二个参数是相对于该功能包路径去哪里找到该源文件.源文件的典型位置是一个功能包的src目录.
+
+  编辑完CMakeLists.txt文件后,即可编译代码.在命令终端,切换到ROS工作空间目录下,使用catkin_make命令即可.
+
+  若编译成功,可在devel/lib/minimal_nodes中看到一个新的可执行文件minimal_publisher.该名称是在CMakeLists.txt的add_executable()中选择的输出文件名称.
+
+### 1.2.4 运行ROS节点
+
+  运行任意节点前必须有且仅有一个roscore正在运行.
