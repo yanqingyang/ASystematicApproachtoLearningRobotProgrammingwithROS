@@ -88,4 +88,80 @@
 
 ### 1.2.4 运行ROS节点
 
-  运行任意节点前必须有且仅有一个roscore正在运行.
+  运行任意节点前必须有且仅有一个roscore正在运行.在命令终端输入:
+
+  roscore
+
+  然后在新的命令终端启动该新发布节点:
+
+  rosrun minimal_nodes minimal_publisher
+
+  命令rosrun的参数是功能包名称和可执行文件名称. rosrun package_name executable_name.
+
+  一般情况下,源代码名称,可执行文件名称和节点名称最好一样.
+
+### 1.2.5 检测正在运行的最小发布节点
+
+  查看主题,可使用命令rostopic.在命令终端输入rostopic,可得到:
+
+  rostopic is a command-line tool for printing information about ROS Topics.
+
+Commands:
+	rostopic bw	display bandwidth used by topic
+	rostopic delay	display delay of topic from timestamp in header
+	rostopic echo	print messages to screen
+	rostopic find	find topics by type
+	rostopic hz	display publishing rate of topic    
+	rostopic info	print information about active topic
+	rostopic list	list active topics
+	rostopic pub	publish data to topic
+	rostopic type	print topic or field type
+
+Type rostopic <command> -h for more detailed usage, e.g. 'rostopic echo -h'
+
+  rostopic list :显示ROS系统中的active topics.
+
+  rostopic hz topicname :显示主题topicname的发布频率.
+
+  rostopic bw topicname :显示主题topicname消耗了多少可用通讯带宽.
+
+  rostopic info topicname :显示主题topicname的消息类型,发布节点和订阅节点.
+
+  rostopic echo topicname :打印发布在主题topicname的所有信息.
+
+  命令rostopic可显示目前ROS系统的很多状态信息.
+
+  命令rosnode可显示ROS系统中active nodes.
+
+rosnode is a command-line tool for printing information about ROS Nodes.
+
+Commands:
+	rosnode ping	test connectivity to node
+	rosnode list	list active nodes
+	rosnode info	print information about node
+	rosnode machine	list nodes running on a particular machine or list machines
+	rosnode kill	kill a running node
+	rosnode cleanup	purge registration information of unreachable nodes
+
+Type rosnode <command> -h for more detailed usage, e.g. 'rosnode ping -h'
+
+  节点rosout是一个通用进程节点,用于将文本显示到终端,由roscore默认启动.
+### 1.2.6 安排节点时序
+
+  上述minimal_publisher节点会过度使用CPU性能和通讯带宽.实际上,机器人系统的节点所需的更新频率一般不超过30kHz.对于大多实时的底层节点而言,其合理的更新频率是1kHz.以下例程使用ROS timer将发布者的更新频率降为1Hz.
+
+  新建修改版源文件sleepy_minimal_publisher.cpp,详细代码及详解参见代码文件.
+
+  ros::Rate naptime(1.0); //实例化类ros::Rate,并设置该sleep timer为1Hz的重复频率
+
+  naptime.sleep(); //在while loop中使用ROS类Rate的成员函数sleep(),该函数会suspend该节点,直到达到the balance of the desired period.
+
+  修改CMakeLists.txt文件并使用catkin_make完成编译.可运行该节点并查看主题/topic1的特性.
+
+  rostopic hz /topic1
+
+  rostopic bw /topic1
+
+  由上述两个指令可看到主题/topic1现在的更新频率是1Hz,且所消耗的通讯带宽明显降低.
+
+### 1.2.7 编写最小ROS订阅者
