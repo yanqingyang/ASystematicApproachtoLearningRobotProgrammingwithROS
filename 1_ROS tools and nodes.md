@@ -107,14 +107,23 @@
   rostopic is a command-line tool for printing information about ROS Topics.
 
 Commands:
+
 	rostopic bw	display bandwidth used by topic
+
 	rostopic delay	display delay of topic from timestamp in header
+
 	rostopic echo	print messages to screen
+
 	rostopic find	find topics by type
-	rostopic hz	display publishing rate of topic    
+
+	rostopic hz	display publishing rate of topic  
+
 	rostopic info	print information about active topic
+
 	rostopic list	list active topics
+
 	rostopic pub	publish data to topic
+
 	rostopic type	print topic or field type
 
 Type rostopic <command> -h for more detailed usage, e.g. 'rostopic echo -h'
@@ -136,11 +145,17 @@ Type rostopic <command> -h for more detailed usage, e.g. 'rostopic echo -h'
 rosnode is a command-line tool for printing information about ROS Nodes.
 
 Commands:
+
 	rosnode ping	test connectivity to node
+
 	rosnode list	list active nodes
+
 	rosnode info	print information about node
+
 	rosnode machine	list nodes running on a particular machine or list machines
+
 	rosnode kill	kill a running node
+
 	rosnode cleanup	purge registration information of unreachable nodes
 
 Type rosnode <command> -h for more detailed usage, e.g. 'rosnode ping -h'
@@ -165,3 +180,35 @@ Type rosnode <command> -h for more detailed usage, e.g. 'rosnode ping -h'
   由上述两个指令可看到主题/topic1现在的更新频率是1Hz,且所消耗的通讯带宽明显降低.
 
 ### 1.2.7 编写最小ROS订阅者
+
+  在minimal_nodes的src下创建文件minimal_subcriber.cpp,详细代码和详解参见代码.
+
+  void myCallback(const std_msgs::Float64& message_holder)
+
+  该函数有一个引用指针参数,指向对象类std_msgs::Float64,这是相对应主题的消息类型.
+
+  该callback函数的重要性在于:无论何时有新数据被发布到相关联的主题,都会唤醒该回调函数.一旦新数据被发布到相关联的主题,该回调函数运行,新发布的数据出现在该回调函数的参数中,此处即为message_holder.该message holder的类型必须与相关联主题的消息类型一致.
+
+  在该回调函数中,可对接收的数据进行处理.此处仅将数据显示出来.
+
+  ROS_INFO("received value is: %f",message_holder.data);
+
+  此处显示使用ROS_INFO(),而不是cout()或printf().ROS_INFO()使用消息发布, 避免了由于显示驱动而降低时序重要的代码.此外,使用ROS_INFO()使得数据可用于记录或监控.ROS_INFO()的参数等同于C语言的printf().
+
+  ROS_INFO()的可替代函数是ROS_INFO_STREAM(),即为:
+
+  ROS_INFO_STREAM("received value is: "<<message_holder.data<<std::endl);
+
+  ROS_INFO_STREAM()函数可获得相同的显示,但使用cout()的语法.
+
+  一旦该callback函数执行完,其将go back to sleep,准备好被该主题的新消息的再次到达而再次唤醒.
+
+  ros::Subscriber my_subscriber_object= n.subscribe("topic1",1,myCallback);
+
+  实例化类ros::Subscriber,该类的子函数subscribe()有三个参数:主题名称,队列尺寸,回调函数名称.
+
+  ros::spin();
+
+  该行引入一个关键ROS概念.无论何时相关联主题上出现新消息,都会激活其回调函数.但是main()必须等待一定时间,使得回调函数来响应.可通过spin()命令来实现.spin使得主程序to suspend,但是保持该回调函数alive.如果主程序运行到结尾,该回调函数将不再是poised to react to new messages.该spin()函数保持main() alive,而不消耗太多CPU时间.
+
+### 1.2.8 编译并运行最小订阅者
