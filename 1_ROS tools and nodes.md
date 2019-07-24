@@ -314,3 +314,19 @@
   使用ROS_INFO()(而不是pringf()或cout)的另一优势是该消息可被记录并回放运行.实现该功能的就是rosbag.
 
 ### 1.3.4 使用rosbag记录和回放数据
+
+  在ROS系统运行时,可指定记录一系列主题,rosbag会订阅这些主题并记录所发布的消息,包括时间戳,存储在一个"bag"文件中.rosbag也可用于回放这些bag文件,从而再现所记录系统的情况.
+
+  当运行rosbag时,最终的记录文件(bag文件)将被保存在rosbag被启动时所在的目录下.切换到minimal_nodes目录下,创建一个新文件夹bagfiles.运行最小发布节点和最小订阅节点,切换到子文件夹bagfiles下,运行以下命令:
+
+  rosbag record topic1
+
+  以上命令将记录主题topic1上的所有消息.在命令终端使用Ctrl+C可终止rosbag.在bagfiles下可看到一个新文件,该文件以记录日期和时间命名,以.bag为后缀.
+
+  可使用rosbag重放该记录.先关闭上述两个节点,再运行:
+
+  rosbag play fname.bag
+
+  此时rosbag正在以数据被记录时相同的频率将所记录数据发布给主题topic1.
+
+## 1.4 最小simulator和controller例程
