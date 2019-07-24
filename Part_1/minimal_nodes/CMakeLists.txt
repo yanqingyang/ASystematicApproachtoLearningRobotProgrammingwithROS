@@ -135,6 +135,8 @@ include_directories(
 add_executable(minimal_publisher src/minimal_publisher.cpp)
 add_executable(sleepy_minimal_publisher src/sleepy_minimal_publisher.cpp)
 add_executable(minimal_subscriber src/minimal_subscriber.cpp)
+add_executable(minimal_simulator src/minimal_simulator.cpp)
+add_executable(minimal_controller src/minimal_controller.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -150,6 +152,8 @@ add_executable(minimal_subscriber src/minimal_subscriber.cpp)
 target_link_libraries(minimal_publisher ${catkin_LIBRARIES})
 target_link_libraries(sleepy_minimal_publisher ${catkin_LIBRARIES})
 target_link_libraries(minimal_subscriber ${catkin_LIBRARIES})
+target_link_libraries(minimal_simulator ${catkin_LIBRARIES})
+target_link_libraries(minimal_controller ${catkin_LIBRARIES})
 
 #############
 ## Install ##

@@ -330,3 +330,41 @@
   此时rosbag正在以数据被记录时相同的频率将所记录数据发布给主题topic1.
 
 ## 1.4 最小simulator和controller例程
+
+  最小仿真器节点模拟F=ma,通过加速度积分来更新速度.输入力是由一些实体(即最小控制器)发布到主题force_cmd中的.最终的系统状态(速度)是由最小仿真器发布到主题velocity上的.
+
+  在功能包minimal_nodes的src下创建文件minimal_simualtor.cpp,详细代码及详解参见代码.
+
+  为便于callback函数及时响应即将到来的数据,main()函数提供spin函数.但spin()函数会导致main()函数停止执行新的计算.该例程中使用ros::spinOnce()函数.该例程中设定main()函数的迭代频率是100Hz.在该仿真器的100Hz循环中执行该spinOnce()函数,该函数运行callback函数以10ms间隔处理即将到来的数据.如果接收到一个新数据,由callback函数存储在g_force中.
+
+  在完整的最小控制器代码中,力值也以10Hz的频率被发布.
+
+  修改CMakeLists.txt文件,编译该功能包,运行该仿真器节点.运行rqt_console可看到速度始终为0.
+
+  使用ROS工具rqt_plot可可视化查看结果.在命令终端运行:
+
+  rqt_plot velocity/data
+
+  上述命令将速度命名随时间的曲线显示处理.
+
+  可人工以命令行发布一个值到力主题.例如:
+
+  rostopic pub -r 10 force_cmd std_msgs/Float64 0.1
+
+  上述命令将以10Hz重复地以std_msgs/Float64将数值0.1发布给主题force_cmd.
+
+  可使用rostopic echo force_cmd查看主题的消息.
+
+  也可使用最小控制器节点发布force_cmd主题.在minimal_nodes下的src下建立新文件minimal_controller.cpp,详细代码和详解参见代码.
+
+  该最小控制器订阅两个主题:velocity和vel_cmd,并发布主题force_cmd.在每个控制周期(10Hz),该控制器检测最新的系统状态(velocity)和最新的命令速度,计算位置误差反馈值以导出力命令.
+
+  修改CMakeLists.txt文件,编译该功能包.可依次运行roscore和这两个节点.
+
+  可使用命令行输入速度命令:
+
+  rostopic pub -r 10 vel_cmd std_msgs/Float64 1.0
+
+  可使用rqt_plot查看速度命令,力命令和速度的变化:
+
+  rqt_plot  vel_cmd/data,velocity/data,force_cmd/data
