@@ -282,3 +282,29 @@
   上行表明编译该minimal_publisher.cpp文件,且其可执行文件是minimal_publisher3.使用catkin_simple时,不需要指定与库的链接.当需要链接很多库,创建很多库,创建很多定制消息时,catkin_simple将会很有用.
 
 ### 1.3.2 自动启动多个节点
+
+  节点较多时,可使用launch文件和roslaunch命令来启动.
+
+  launch文件的后缀是.launch.通常情况下,launch文件位于功能包的launch文件下.一个launch文件也可以调用其他launch文件来启动多个功能包的多个节点.
+
+  在功能包minimal_nodes中,创建文件夹launch,在该子文件夹创建文件minimal_nodes.launch,添加以下内容:
+
+  <launch>
+
+    <node name="publisher" pkg="minimal_nodes" type="sleepy_minimal_publisher"/>
+
+    <node name="subscriber" pkg="minimal_nodes" type="minimal_subscriber"/>
+
+  </launch>
+
+  上述文件中,采用XML语法.使用关键词"node"告诉ROS要启动一个ROS节点(即由catkin_make编译的一个可执行程序).要launch一个节点,必须指定三对key/value: 该节点的功能包名,即"pkg"的值;该节点的二进制可执行文件名,即"type"的值; 节点名称,即节点被启动后被ROS所识别的节点名,即"name"的值.实际上,在源代码中已经指定节点名,如sleep_minimal_publisher.cpp中的ros::init(argc,argv,"minimal_publisher2").而launch文件允许你启动节点时重命名该节点名.使用以下命令执行该启动文件:
+
+  roslaunch minimal_nodes minimal_nodes.launch
+
+  使用roslaunch时,不需要启动roscore.如果roscore已经在运行,该roslaunch将启动指定的节点.如果roscore没有运行,roslaunch会检测到这一点,在启动指定节点前先开启roscore.
+
+  当使用roslaunch启动上述最小发布者节点和最小订阅者节点时,我们不能看到订阅者的输出.由于在订阅者节点中采用ROS_INFO(),我们可使用rqt_console工具来观测该输出.
+
+### 1.3.3 在ROS console中查看输出
+
+  
