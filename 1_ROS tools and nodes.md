@@ -106,27 +106,27 @@
 
   rostopic is a command-line tool for printing information about ROS Topics.
 
-Commands:
+  Commands:
 
-	rostopic bw	display bandwidth used by topic
+    rostopic bw	display bandwidth used by topic
 
-	rostopic delay	display delay of topic from timestamp in header
+    rostopic delay	display delay of topic from timestamp in header
 
-	rostopic echo	print messages to screen
+    rostopic echo	print messages to screen
 
-	rostopic find	find topics by type
+    rostopic find	find topics by type
 
-	rostopic hz	display publishing rate of topic  
+    rostopic hz	display publishing rate of topic  
 
-	rostopic info	print information about active topic
+    rostopic info	print information about active topic
 
-	rostopic list	list active topics
+    rostopic list	list active topics
 
-	rostopic pub	publish data to topic
+    rostopic pub	publish data to topic
 
-	rostopic type	print topic or field type
+    rostopic type	print topic or field type
 
-Type rostopic <command> -h for more detailed usage, e.g. 'rostopic echo -h'
+  Type rostopic <command> -h for more detailed usage, e.g. 'rostopic echo -h'
 
   rostopic list :显示ROS系统中的active topics.
 
@@ -142,23 +142,23 @@ Type rostopic <command> -h for more detailed usage, e.g. 'rostopic echo -h'
 
   命令rosnode可显示ROS系统中active nodes.
 
-rosnode is a command-line tool for printing information about ROS Nodes.
+  rosnode is a command-line tool for printing information about ROS Nodes.
 
-Commands:
+    Commands:
 
-	rosnode ping	test connectivity to node
+    rosnode ping	test connectivity to node
 
-	rosnode list	list active nodes
+    rosnode list	list active nodes
 
-	rosnode info	print information about node
+    rosnode info	print information about node
 
-	rosnode machine	list nodes running on a particular machine or list machines
+    rosnode machine	list nodes running on a particular machine or list machines
 
-	rosnode kill	kill a running node
+    rosnode kill	kill a running node
 
-	rosnode cleanup	purge registration information of unreachable nodes
+    rosnode cleanup	purge registration information of unreachable nodes
 
-Type rosnode <command> -h for more detailed usage, e.g. 'rosnode ping -h'
+  Type rosnode <command> -h for more detailed usage, e.g. 'rosnode ping -h'
 
   节点rosout是一个通用进程节点,用于将文本显示到终端,由roscore默认启动.
 ### 1.2.6 安排节点时序
@@ -212,3 +212,26 @@ Type rosnode <command> -h for more detailed usage, e.g. 'rosnode ping -h'
   该行引入一个关键ROS概念.无论何时相关联主题上出现新消息,都会激活其回调函数.但是main()必须等待一定时间,使得回调函数来响应.可通过spin()命令来实现.spin使得主程序to suspend,但是保持该回调函数alive.如果主程序运行到结尾,该回调函数将不再是poised to react to new messages.该spin()函数保持main() alive,而不消耗太多CPU时间.
 
 ### 1.2.8 编译并运行最小订阅者
+
+  修改CMakeLists.txt文件并重新编译该ROS工作空间.
+
+  在三个命令终端依次运行:
+
+  roscore
+
+  rosrun minimal_nodes sleepy_minimal_publisher
+
+  rosrun minimal_nodes minimal_subscriber
+
+  可看到每1s显示更新一次.
+
+  使用命令rosnode list可看到有三个节点:/minimal_publisher2, /minimal_subscriber, /rosout.
+
+  使用命令rqt_graph可看到该正在运行的ROS系统的图形显示:节点,主题及相互间连接关系.
+
+### 1.2.9 最小订阅者和发布者节点总结
+
+  硬实时高速伺服环可能需要非ROS的专用控制器,用户需要设计硬实时控制器并编写一个ROS兼容的订阅接口.
+
+## 1.3 ROS tools: CATKIN_SIMPLE, ROSLAUNCH, RQT_CONSOLE, AND ROSBAG
+  
