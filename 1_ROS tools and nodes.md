@@ -307,4 +307,10 @@
 
 ### 1.3.3 在ROS console中查看输出
 
-  
+  监测ROS消息的简便工具就是rqt_console,可通过在命令终端使用rqt_console命令启动.当上述最小发布者节点和最小订阅者节点在运行时,使用rqt_console可查看消息.
+
+  在该实例中,一旦rqt_console被启动,rqt_console会显示最小订阅者的输出值,直到rqt_console被暂停(使用rqt_console的"pause"按钮).
+
+  使用ROS_INFO()(而不是pringf()或cout)的另一优势是该消息可被记录并回放运行.实现该功能的就是rosbag.
+
+### 1.3.4 使用rosbag记录和回放数据
