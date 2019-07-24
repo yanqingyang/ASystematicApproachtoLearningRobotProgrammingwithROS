@@ -234,4 +234,51 @@
   硬实时高速伺服环可能需要非ROS的专用控制器,用户需要设计硬实时控制器并编写一个ROS兼容的订阅接口.
 
 ## 1.3 ROS tools: CATKIN_SIMPLE, ROSLAUNCH, RQT_CONSOLE, AND ROSBAG
-  
+
+  本节介绍的ROS工具是catkin_simple, roslaunch, rqt_console和rosbag.
+
+### 1.3.1 使用catkin_simple简化CMakeLists.txt
+
+  如前所述,创建新功能包所生成的CMakeLists.txt文件是相当长的.功能包catkin_simple可有助于简化该CMakeLists.txt文件,该功能包位于https://github.com/catkin/catkin_simple.
+
+  在该ROS工作空间的src文件夹下新建文件夹learnros_external_packages,然后将功能包catkin_simple克隆到该文件夹中:
+
+  git clone https://github.com/catkin/catkin_simple.git
+
+  然后将一个Python脚本文件cs_create_pkg.py复制到文件夹learnros_external_packages中.然后切换到该文件所在位置,使用 chmod a+x cs_create_pkg.py 命令改变该脚本文件的权限.
+
+  为运行该脚本,可定义一个别名指向该脚本,以此作为命令使用.在命令终端:
+
+  alias cs_create_pkg="~/learnros_ws/src/ASystematicApproachtoLearningRobotProgrammingwithROS/learnros_external_packages/cs_create_pkg.py"
+
+  然后在同一命令终端,切换到~/learnros_ws/src/ASystematicApproachtoLearningRobotProgrammingwithROS/Part_1下,创建新功能包minimal_nodes2:
+
+  cs_create_pkg minimal_nodes2 roscpp std_msgs
+
+  目前该命令cs_create_pkg仅可在该命令终端被识别.为实现通用,应在你的.bashrc文件中包括该命令的别名定义.打开文件~/.bashrc,添加行:
+
+  alias cs_create_pkg="~/learnros_ws/src/ASystematicApproachtoLearningRobotProgrammingwithROS/learnros_external_packages/cs_create_pkg.py"
+
+  然后保存该文件.自此新的命令终端均可识别该cs_create_pkg命令.
+
+  使用新命令cs_create_pkg,创建的新功能包minimal_nodes2包含所期待的结构:子文件夹src和include, 文件package.xml和CMakeLists.txt, 一个新文件README.md.该README.md文件应描述该功能包的目的及如何使用该功能包运行例程.该README.md使用markdown格式.
+
+  其中的package.xml类似于使用catkin_create_pkg创建的相同文件,区别在于添加了以下依赖项:
+
+  <buildtool_depend>catkin_simple</buildtool_depend>
+
+  而CMakeLists.txt文件被合理简化.
+
+  行catkin_simple()调用action来自动执行该CMakeLists.txt的大部分复杂编辑.
+
+  为了编译理想源代码而修改该CMakeLists.txt文件时,仅需要修改以下行:
+
+  cs_add_executable(example src/example.cpp)
+
+  将minimal_publisher.cpp复制到该新功能包的src下.修改其CMakeLists.txt文件的以下行即可编译该节点:
+
+  cs_add_executable(minimal_publisher3 src/minimal_publisher.cpp)
+
+  上行表明编译该minimal_publisher.cpp文件,且其可执行文件是minimal_publisher3.使用catkin_simple时,不需要指定与库的链接.当需要链接很多库,创建很多库,创建很多定制消息时,catkin_simple将会很有用.
+
+### 1.3.2 自动启动多个节点
