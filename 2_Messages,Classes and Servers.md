@@ -125,3 +125,118 @@
   上述介绍了定义消息类型.定义用于ROS Services和ROS action servers的附加消息类型也是类似的过程.
 
 ## 2.2 ROS Services
+
+  在publish-subscribe通讯机制中,订阅者可能丢失信息.这类通讯适用于重复性消息.
+
+  有时需要建立双向的,点到点的可靠通讯.the client sends a request to a service, and the service sends a response to the client.
+
+  当一个client发送一个请求时,该client被挂起,直到返回一个回答.ROS节点应能忍受这样的延迟.如果该请求涉及大量的计算或延时,应使用the action server and action client 机制.
+
+### 2.2.1 Service messages
+
+  在Part_1下创建新功能包example_ros_service:
+
+  cs_create_pkg example_ros_service roscpp std_msgs
+
+  定义一个定制的service message,该消息分别描述一个请求和一个响应的数据类型和域名,这是由ROS模板实现的,即一个*.srv文件.该文件的内容自动生成C++头文件,以在C++文件中使用.
+
+  在example_ros_service下新建文件夹srv,在其中新建文件ExampleServiceMsg.srv:
+
+  string name
+  ---
+  bool on_the_list
+  bool good_guy
+  int32 age
+  string nickname
+
+  上述代码中,'---'以上部分表示请求结构,'---'以下部分表示响应结构.
+
+  修改package.xml文件通知编译器需要生成新消息头文件:
+
+  <build_depend>message_generation</build_depend>
+
+  <run_depend>message_generation</run_depend>
+
+  编译该ROS工作空间后,自动生成响应的C++头文件.该C++头文件位于:~/learnros_ws/devel/include/example_ros_service.不同于自定义消息类型,自定义服务消息类型经编译后会生成三个C++头文件:ExampleServiceMsg.h, ExampleServiceMsgRequest.h, ExampleServiceMsgResponse.h.后两个头文件均包含在ExampleServiceMsg.h中.
+
+  为在一个节点中使用一个新的服务消息类型,应在其C++源代码中包含相关头文件:
+
+  # include <example_ros_service/ExampleServiceMsg.h>
+
+  分隔符<...>告诉编译器在期望位置处查找该文件,例如/devel/include.
+
+  如果在其他功能包中使用该新服务消息类型,除了在其节点源文件中添加 #include <example_ros_service/ExampleServiceMsg.h>外,在其package.xml中有两点不同.1.不需要依赖项message_generation或message_runtime,这是因为该消息类型仅需生成一次.2.新功能包的package.xml文件必须添加依赖项example_ros_service,即添加行:<build_depend>example_ros_service</build_depend>.
+
+### 2.2.2 ROS Services nodes
+
+  在功能包example_ros_service中的src下新建文件example_ros_service.cpp,详细代码和详解参见代码.
+
+  创建服务类ros::ServiceServer的实例.当该Service接收到一个请求时,将唤醒callback函数.
+
+  编辑CMakeLists.txt,并编译该工作空间,运行该节点:
+
+  rosrun example_ros_service example_ros_service
+
+### 2.2.3 与ROS Services人工交互
+
+  当节点example_ros_service正在运行时,可使用以下命令查看该Service是否可用:
+
+  rosservice list
+
+  上述指令会显示一个/lookup_by_name的服务.
+
+  rosservice
+
+  Commands:
+
+    rosservice args	print service arguments
+
+    rosservice call	call the service with the provided args
+
+    rosservice find	find services by service type
+
+    rosservice info	print information about service
+
+    rosservice list	list active services
+
+    rosservice type	print service type
+
+    rosservice uri	print service ROSRPC uri
+
+  Type rosservice <command> -h for more detailed usage, e.g. 'rosservice call -h'
+
+  使用以下命令与上述服务进行人工交互:
+
+  rosservice call lookup_by_name 'Ted'
+
+### 2.2.4 ROS service client
+
+  为与ROS service进行程序化交互,需要一个ROS client.
+
+  在example_ros_service中的src下新建文件example_ros_client.cpp,详细代码和详情参见代码.
+
+  使用ros::ServiceClient实例化客户端对象.
+
+  编辑CMakeLists.txt文件并编译该工作空间.
+
+### 2.2.5 运行service和client例程
+
+  启动该服务:
+
+  roscore
+
+  rosrun example_ros_service example_ros_service
+
+  该服务显示"Ready to look up names",然后suspends action,直到到来一个服务请求.在等待服务请求时,尽管该服务是active,但仅消耗可忽略的资源(CPU周期和带宽).
+
+  再启动客户端:
+
+  rosrun example_ros_service example_ros_client
+
+  ROS 包含一些预定义的服务消息类型,存在于功能包std_srvs.
+
+  只有快速请求和快速响应交互时才使用Services.对于需要较长时间才能准备号响应的交互,应使用action-servers和action-clients.为介绍action servers,需要先看看在节点中如何使用C++类.
+
+## 2.3 在ROS中使用C++类
+
+  
