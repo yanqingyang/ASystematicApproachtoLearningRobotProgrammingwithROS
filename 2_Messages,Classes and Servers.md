@@ -313,4 +313,90 @@
 
 ## 2.5 action servers and action clients简介
 
-  
+  ROS中第三种重要通讯框架是action server-action client 模式.该模式类似于service-client通讯,也是点对点通讯.而service-client模式的限制在于client会阻断直到service响应.构建action servers和action clients会有很多选择和变化,详情参见http://wiki.ros.org/actionlib.
+
+  可研究下SMACH,参见http://wiki.ros.org/smach
+
+### 2.5.1 创建一个action server功能包
+
+  创建一个功能包example_action_server:
+
+  cs_create_pkg example_action_server roscpp actionlib
+
+  在该功能包下新建文件夹action,用于定义通讯消息类型.为使得catkin_make可预处理该action message,编辑package.xml:
+
+  <build_depend>message_generation</build_depend>
+
+  <run_depend>message_runtime</run_depend>
+
+  以上可自动生成多个头文件,以定义用于action client-action server通讯的消息类型.
+
+### 2.5.2 自定义action-server消息
+
+  类似于创建消息和service 消息的过程.
+
+  在子文件夹action中,创建新文件demo.action.action message有三个域值:goal, result 和 feedback.
+
+  #goal definition
+
+  int32 input
+
+  ---
+
+  #result definition
+
+  int32 output
+
+  int32 goal_stamp
+
+  ---
+
+  #feedback
+
+  int32 fdbk
+
+  action message必须以上述格式编写,且三短线和次序都是关键的.定义于这些域内的部分可包含任何已有的消息类型,只要对应的消息功能包位于package.xml文件中且对应的头文件被包含在源文件中.
+
+  一旦编译该新功能包,构建系统会生成多个新的*.h头文件.这些头文件位于devel/include下与功能包同名的子文件夹中,即example_action_server.在该文件夹中,被创建了7个*.h文件,每个头文件名以demo起始.其中六个头文件被包含在头文件demoAction.h中.通过在action 节点代码中包含不同的头文件,可使用不同的消息类型,如demoGoal, demoResult.
+
+  在src下新建文件example_action_server.cpp,详情参见代码.
+
+  #include <actionlib/server/simple_action_server.h>
+
+  上行引入与功能包simple_action_server相关的头文件.
+
+  class ExampleActionServer {}
+
+  上行定义类ExampleActionServer,该类包含一个类SimpleActionServer的实例as_,类SimpleActionServer定义在库actionlib中.
+
+  当该server 返回goal 消息给其client时,该client接收的值被赋值给result_.output.
+
+  类ExampleActionServer的callback函数是重要的.回调函数的名称是任意的,此处为executeCB().
+
+  该例程不演示如何给client发送反馈消息.反馈消息的目的在于当正在生成goal过程中给client提供状态反馈.反馈消息不是必须的,但很有用.
+
+### 2.5.3 设计一个action client
+
+  在src下新建文件example_action_client.cpp,详情参见代码.
+
+  action client的成员函数waitForServer()用于尝试链接到特定server.如果链接成功,返回true.
+
+### 2.5.4 运行例程节点
+
+  编辑CMakeLists.txt文件并编译.
+
+  roscore
+
+  rosrun example_action_server example_action_server
+
+  rosrun example_action_server example_action_client
+
+  当上述节点运行时,在example_action下有五个新主题:cancel, feedback, goal, result, status.
+
+  ROS 的action servers的一个特性是将client与server进行重连或新连接似乎是不可靠的.
+
+  在src下新建文件example_action_server_w_fdbk.cpp,详情参见代码.
+
+  关于action server有待深入学习研究.
+
+## 2.6 参数服务器简介
