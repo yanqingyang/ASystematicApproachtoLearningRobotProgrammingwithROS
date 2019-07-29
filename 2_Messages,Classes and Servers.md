@@ -264,3 +264,53 @@
   上述例程演示如何在C++类中引入ROS publisher, subscriber,和Services.
 
 ## 2.4 在ROS中创建库模块
+
+  本部分描述创建库的步骤.涉及创建库,使用库.
+
+  创建新功能包creating_a_ros_library:
+
+  cs_create_pkg creating_a_ros_library roscpp std_msgs std_srvs
+
+  将功能包example_ros_class下的源文件example_ros_class.cpp复制到功能包creating_a_ros_library下的src下,移除main()部分并修改所包含的头文件:
+
+  #include <creating_a_ros_library/example_ros_class.h>.
+
+  其他详情参见代码.
+
+  在功能包creating_a_ros_library下include内新建文件夹creating_a_ros_library,并将功能包example_ros_class中的example_ros_class.h复制过去.
+
+  修改功能包creating_a_ros_library中的CMakeLists.txt:
+
+  cs_add_library(example_ros_library src/example_ros_class.cpp)
+
+  上行告知catkin_make将创建一个新库.该新库名为example_ros_library,该库的源文件位于src/example_ros_class.cpp.
+
+  此时可使用catkin_make进行编译该库.编译完成后,在文件夹devle/lib下出现新文件libexample_ros_library.so.该库的基名example_ros_library.so由在cs_add_library中的名称指定,而构建系统添加前缀"lib".但是链接到该库并不需要知道该库的名称.只需要在package.xml中标注该功能包依赖项并在相关头文件中包含对应头文件即可, #include <creating_a_ros_library/example_ros_class.h>.
+
+  在功能包creating_a_ros_library下src内新建文件example_ros_class_test_main.cpp,以验证新库是否可用,详情参见代码.
+
+  修改CMakeLists.txt文件:
+
+  cs_add_executable(ros_library_test_main src/example_ros_class_test_main.cpp)
+
+  target_link_libraries(ros_library_test_main example_ros_library)
+
+  上行链接器命令中,第一个参数是可执行文件名,第二个参数新库名.
+
+  编译并运行,可得到与example_ros_class一样的结果.上述演示如何使用新库.
+
+  创建新功能包using_a_ros_library:
+
+  cs_create_pkg using_a_ros_library roscpp std_msgs std_srvs creating_a_ros_library
+
+  将example_ros_class_test_main.cpp复制到功能包using_a_ros_library下的src下.修改CMakeLists.txt文件:
+
+  cs_add_executable(ros_library_external_test_main,src/example_ros_class_test_main.cpp)
+
+  此时使用catkin_simple进行编译构建,因此不需要添加链接项.但如果节点使用同一功能包创建的新库,仍需要添加依赖项.
+
+  编译运行,即可获得应有结果.
+
+## 2.5 action servers and action clients简介
+
+  
