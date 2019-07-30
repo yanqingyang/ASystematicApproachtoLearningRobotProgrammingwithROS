@@ -400,3 +400,61 @@
   关于action server有待深入学习研究.
 
 ## 2.6 参数服务器简介
+
+  ROS参数服务器用于较少改变的参数共享.
+
+  一个参数服务器是一个共享的多变量词典,通过网络APIs获取.节点使用该服务来实时存储和接收参数.最好用于静态的非二进制数据,如配置参数等.
+
+  参数服务器常用语设置配置参数或特殊参数,如关节伺服的控制增益,坐标转换参数,传感器的固有和外部补偿参数,机器人模型等.
+
+  通常使用YAML文件存储参数设置,可通过命令行或launch文件的进程将该文件载入参数服务器.
+
+  命令rosparam用于获取和设置参数服务器中的ROS参数.
+
+  rosparam is a command-line tool for getting, setting, and deleting parameters from the ROS Parameter Server.
+
+  Commands:
+
+    rosparam set	set parameter
+
+    rosparam get	get parameter
+
+    rosparam load	load parameters from file
+
+    rosparam dump	dump parameters to file
+
+    rosparam delete	delete parameter
+
+    rosparam list	list parameter names
+
+  可将整个参数集的值存在一个文件中:
+
+  rosparam dump param_dump
+
+  上行即将所有参数值存在文件param_dump中.
+
+  为了自动载入配置文件,ROS launch文件可接收一个参数便签,例如:
+
+  <launch>
+
+  <rosparam command="load" file="jnt1_gains.yaml" />
+
+  </launch>
+
+  可使用C++代码来获取参数数据.
+
+  新建功能包example_parameter_server:
+
+  cs_create_pkg example_parameter_server roscpp std_msgs
+
+  在该功能包下新建文件夹launch,在其中新建文件load_gains.launch和jnt1_gains.yaml,详细代码见文件.
+
+  在该功能包下src内新建文件read_param_from_node.cpp,详情参见代码.
+
+  将配置参数载入参数服务器,并使用节点进行更改:
+
+  roslaunch example_parameter_server load_gains.launch
+
+  rosrun example_parameter_server read_param_from_node
+
+  
